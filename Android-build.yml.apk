@@ -1,0 +1,41 @@
+name: Storm Chaser Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Android
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Extract Unity project
+        run: |
+          unzip -q STORM_CHASER_EXTREME_Unity6_v0.1.zip -d project
+          PROJECT_PATH=$(find project -name ProjectVersion.txt -printf '%h\n' | head -n 1)
+          if [ -z "$PROJECT_PATH" ]; then
+            echo "Unity project not found"
+            exit 1
+          fi
+          echo "PROJECT_PATH=$PROJECT_PATH" >> $GITHUB_ENV
+
+      - name: Build Android APK
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          targetPlatform: Android
+          buildName: StormChaserExtreme
+          buildsPath: build
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Storm-Chaser-Extreme-APK
+          path: build/**/*.apk
+          if-no-files-found: error
+          
