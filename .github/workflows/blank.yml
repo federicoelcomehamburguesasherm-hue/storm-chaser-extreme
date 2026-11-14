@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install Java
@@ -18,12 +18,17 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Verify project ZIP
-        run: |
-          ls -la
-          unzip -l STORM_CHASER_EXTREME_Unity6_v0.1.zip
+      - name: Install Unity
+        uses: game-ci/unity-builder@v4
+        with:
+          targetPlatform: Android
+          projectPath: .
+          unityVersion: 6000.0.XXf1
+          buildMethod: UnityEditor.BuildPipeline.BuildPlayer
 
-      - name: Build preparation
-        run: |
-          echo "Preparing Android build environment"
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Storm-Chaser-Extreme-APK
+          path: build/Android/*.apk
           
